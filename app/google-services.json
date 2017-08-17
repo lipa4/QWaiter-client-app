@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "798605940573",
+    "firebase_url": "https://qwaiter-f1168.firebaseio.com",
+    "project_id": "qwaiter-f1168",
+    "storage_bucket": "qwaiter-f1168.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798605940573:android:055d87972186c3f7",
+        "android_client_info": {
+          "package_name": "com.tvz.tomislav.qwaiter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798605940573-bqv43s1tfnj7k5b66olpnilelinssn9v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tvz.tomislav.qwaiter",
+            "certificate_hash": "df2da2ce3fbef6cf58511855314a1df329f02494"
+          }
+        },
+        {
+          "client_id": "798605940573-0dq6rnqvk3dlvjqt0ftkjkuoom6tknc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe7rxsY4gvyZRhCn7BrbePnQxwtai2_Vs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798605940573-0dq6rnqvk3dlvjqt0ftkjkuoom6tknc4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
