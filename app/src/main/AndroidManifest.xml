@@ -18,21 +18,25 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ScanActivity"
             android:label="@string/title_activity_scan"
-            android:theme="@style/AppTheme.NoActionBar">
-
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".qrcode.BarcodeCaptureActivity"></activity>
+        <activity android:name=".nfc.NFCReader"></activity>
+        <activity
+            android:name=".CategoryDetailActivity"
+            android:label="@string/title_activity_category_detail"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/FirebaseUI">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tvz.tomislav.qwaiter.MainActivity" />
         </activity>
-        <activity android:name=".qrcode.BarcodeCaptureActivity" >
-        </activity>
-
-        <activity android:name=".nfc.NFCReader" >
-        </activity>
-
     </application>
 
 </manifest>

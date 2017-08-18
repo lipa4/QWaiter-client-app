@@ -115,7 +115,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/profile_icon"
+            android:src="@drawable/porta_logo"
             app:layout_anchor="@id/materialup.title_container"
             android:elevation="8dp"
 

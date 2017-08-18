@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     public static final int RC_SIGN_IN = 1;
     public static final int RC_SCAN = 2;
     public static final String ANONYMOUS = "anonymous";
+    public static int TAB_COUNT = 1;
 
     private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
     private boolean mIsAvatarShown = true;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private ImageView mProfileImage;
     private int mMaxScrollSize;
+    private FirebaseUser mFirebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,21 +82,25 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Listener for collapsing toolbar layout
         appbarLayout.addOnOffsetChangedListener(this);
         mMaxScrollSize = appbarLayout.getTotalScrollRange();
 
+        //Tabs  DOVRŠI !!!
+        //TAB_COUNT = 1 ako je kafić ili 2 ako restoran
         viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
+
 
         //Firebase authentication
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                mFirebaseUser = firebaseAuth.getCurrentUser();
+                if (mFirebaseUser != null) {
                     // User is signed in
-                    onSignedInInitialize(user.getDisplayName());
+                    onSignedInInitialize(mFirebaseUser.getDisplayName());
                 } else {
                     // User is signed out
                     onSignedOutCleanup();
@@ -113,6 +120,8 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
+
+        //Floating action button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +131,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Navigation drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -130,8 +140,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //Status bar -> transparent
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
     }
 
+    //Hiding and showing avatar while collapsing toolbar
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
         if (mMaxScrollSize == 0)
@@ -156,6 +170,7 @@ public class MainActivity extends AppCompatActivity
                     .start();
         }
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -226,7 +241,6 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            AuthUI.getInstance().signOut(this);
             return true;
         }
 
@@ -250,7 +264,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-
+            AuthUI.getInstance().signOut(this);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -264,7 +278,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private static class TabsAdapter extends FragmentPagerAdapter {
-        private static final int TAB_COUNT = 2;
 
         TabsAdapter(FragmentManager fm) {
             super(fm);

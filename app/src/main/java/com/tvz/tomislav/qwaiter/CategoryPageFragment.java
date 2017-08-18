@@ -1,6 +1,7 @@
 package com.tvz.tomislav.qwaiter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ public class CategoryPageFragment extends Fragment  {
     private RecyclerView mRootView;
 
     private OnFragmentInteractionListener mListener;
+    public static View.OnClickListener clickListener;
 
     public CategoryPageFragment() {
         // Required empty public constructor
@@ -43,6 +45,13 @@ public class CategoryPageFragment extends Fragment  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), CategoryDetailActivity.class);
+                startActivity(intent);
+            }
+        };
     }
 
     @Override
@@ -104,8 +113,10 @@ public class CategoryPageFragment extends Fragment  {
     private static class FakePageAdapter extends RecyclerView.Adapter<FakePageVH> {
         private final int numItems;
 
+
         FakePageAdapter(int numItems) {
             this.numItems = numItems;
+
         }
 
         @Override
@@ -113,6 +124,7 @@ public class CategoryPageFragment extends Fragment  {
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
 
+            itemView.setOnClickListener(clickListener);
             return new FakePageVH(itemView);
         }
 
