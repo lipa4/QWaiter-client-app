@@ -4,8 +4,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -32,12 +39,14 @@ import com.google.firebase.storage.UploadTask;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AppBarLayout.OnOffsetChangedListener,CategoryPageFragment.OnFragmentInteractionListener {
 
     public static final int RC_SIGN_IN = 1;
     public static final int RC_SCAN = 2;
     public static final String ANONYMOUS = "anonymous";
 
+    private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
+    private boolean mIsAvatarShown = true;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessagesDatabaseReference;
@@ -48,13 +57,34 @@ public class MainActivity extends AppCompatActivity
     private StorageReference mChatPhotosStorageReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private String mUsername=null;
+    private DrawerLayout mDrawerLayout;
+    private ImageView mProfileImage;
+    private int mMaxScrollSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.materialup_tabs);
+        ViewPager viewPager  = (ViewPager) findViewById(R.id.materialup_viewpager);
+        AppBarLayout appbarLayout = (AppBarLayout) findViewById(R.id.materialup_appbar);
+        mProfileImage = (ImageView) findViewById(R.id.materialup_profile_image);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.materialup_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        appbarLayout.addOnOffsetChangedListener(this);
+        mMaxScrollSize = appbarLayout.getTotalScrollRange();
+
+        viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager()));
+        tabLayout.setupWithViewPager(viewPager);
+
         //Firebase authentication
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -83,23 +113,48 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Basket is empty!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });*/
+        });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.addDrawerListener(toggle);
-//        toggle.syncState();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (mMaxScrollSize == 0)
+            mMaxScrollSize = appBarLayout.getTotalScrollRange();
+
+        int percentage = (Math.abs(i)) * 100 / mMaxScrollSize;
+
+        if (percentage >= PERCENTAGE_TO_ANIMATE_AVATAR && mIsAvatarShown) {
+            mIsAvatarShown = false;
+
+            mProfileImage.animate()
+                    .scaleY(0).scaleX(0)
+                    .setDuration(200)
+                    .start();
+        }
+
+        if (percentage <= PERCENTAGE_TO_ANIMATE_AVATAR && !mIsAvatarShown) {
+            mIsAvatarShown = true;
+
+            mProfileImage.animate()
+                    .scaleY(1).scaleX(1)
+                    .start();
+        }
     }
 
     @Override
@@ -109,19 +164,10 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 // Sign-in succeeded, set up the UI
                 Intent intent = new Intent(this,ScanActivity.class);
-                startActivityForResult(intent,RC_SCAN);
+                startActivity(intent);
             } else if (resultCode == RESULT_CANCELED) {
                 // Sign in was canceled by the user, finish the activity
                 Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
-        else if (requestCode == RC_SCAN){
-            if (resultCode == RESULT_OK){
-                Toast.makeText(this, "Scan complete", Toast.LENGTH_SHORT).show();
-
-            }
-            else if (resultCode == RESULT_CANCELED){
                 finish();
             }
         }
@@ -210,5 +256,33 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    private static class TabsAdapter extends FragmentPagerAdapter {
+        private static final int TAB_COUNT = 2;
+
+        TabsAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return TAB_COUNT;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            return CategoryPageFragment.newInstance();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Tab " + String.valueOf(position);
+        }
     }
 }

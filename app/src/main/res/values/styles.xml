@@ -24,4 +24,17 @@
     <style name="FirebaseUI.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="FirebaseUI.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.SimpleCoordinatorTheme">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ToolBarWithNavigation">
+        <item name="navigationIcon">@drawable/side_nav_bar</item>
+    </style>
+
+    <style name="CollapsingTextAppearance" parent="Base.TextAppearance.AppCompat.Widget.ActionBar.Title"/>
+    <style name="CollapsingTextAppearance.Inverse" >
+        <item name="android:textSize">30sp</item>
+    </style>
 </resources>
