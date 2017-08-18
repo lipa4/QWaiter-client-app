@@ -3,6 +3,16 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="facebook_application_id" translatable="false">523169824683400
+</string>
 
+
+    <!-- Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs. -->
+    <string name="facebook_login_protocol_scheme" translatable="false">fb523169824683400
+</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_scan">ScanActivity</string>
+    <string name="low_storage_error">Low storage memory!</string>
+    <string name="ok">OK</string>
+    <string name="no_camera_permission">No camera permission!</string>
 </resources>
