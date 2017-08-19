@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     public static final int RC_SIGN_IN = 1;
     public static final int RC_SCAN = 2;
     public static final String ANONYMOUS = "anonymous";
-    public static int TAB_COUNT = 1;
+    public static int TAB_COUNT = 2;
 
     private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
     private boolean mIsAvatarShown = true;

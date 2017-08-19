@@ -25,9 +25,9 @@
         <activity
             android:name=".ScanActivity"
             android:label="@string/title_activity_scan"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".qrcode.BarcodeCaptureActivity"></activity>
-        <activity android:name=".nfc.NFCReader"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".qrcode.BarcodeCaptureActivity" />
+        <activity android:name=".nfc.NFCReader" />
         <activity
             android:name=".CategoryDetailActivity"
             android:label="@string/title_activity_category_detail"
@@ -36,6 +36,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tvz.tomislav.qwaiter.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ProductDetailActivity"
+            android:label="@string/title_activity_product_detail"
+            android:parentActivityName=".CategoryDetailActivity"
+            android:theme="@style/FirebaseUI">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tvz.tomislav.qwaiter.CategoryDetailActivity" />
         </activity>
     </application>
 

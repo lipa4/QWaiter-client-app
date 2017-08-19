@@ -54,20 +54,20 @@ public class CategoryPageFragment extends Fragment  {
         };
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        initRecyclerView();
-    }
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            initRecyclerView();
+        }
 
-    private void initRecyclerView() {
-        mRootView.setAdapter(new FakePageAdapter(20));
-    }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (RecyclerView) inflater.inflate(R.layout.fragment_page, container, false);
-        return mRootView;
-    }
+        private void initRecyclerView() {
+            mRootView.setAdapter(new FakePageAdapter(20));
+        }
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            mRootView = (RecyclerView) inflater.inflate(R.layout.fragment_page, container, false);
+            return mRootView;
+        }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
