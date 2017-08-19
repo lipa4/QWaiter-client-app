@@ -1,17 +1,15 @@
 package com.tvz.tomislav.qwaiter;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,11 +19,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.firebase.ui.auth.AuthUI;
 
-public class CategoryDetailActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener{
 
 
     private DrawerLayout mDrawerLayout;
@@ -34,28 +31,25 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
     private FakePageAdapter mAdapter;
     public static View.OnClickListener clickListener;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_detail);
-        AppBarLayout appbarLayout = (AppBarLayout) findViewById(R.id.material_appbar);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(R.layout.activity_checkout);
+        AppBarLayout appbarLayout = (AppBarLayout) findViewById(R.id.checkout_appbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.checkout_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 onBackPressed();
             }
         });
-
         //Setting back button on the toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        mRootView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        mRootView = (RecyclerView) findViewById(R.id.checkout_recycler_view);
 
-        mAdapter = new FakePageAdapter(20);
+        mAdapter = new CheckoutActivity.FakePageAdapter(20);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRootView.setLayoutManager(mLayoutManager);
         mRootView.setItemAnimator(new DefaultItemAnimator());
@@ -70,12 +64,11 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
         };
 
         //Basket floating action buttton
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.checkout_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), CheckoutActivity.class);
-                startActivity(intent);
+
             }
         });
 
@@ -114,7 +107,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
     }
 
 
-    private static class FakePageAdapter extends RecyclerView.Adapter<CategoryDetailActivity.FakePageVH> {
+    private static class FakePageAdapter extends RecyclerView.Adapter<CheckoutActivity.FakePageVH> {
         private final int numItems;
 
 
@@ -124,15 +117,15 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
         }
 
         @Override
-        public CategoryDetailActivity.FakePageVH onCreateViewHolder(ViewGroup viewGroup, int i) {
+        public CheckoutActivity.FakePageVH onCreateViewHolder(ViewGroup viewGroup, int i) {
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
             itemView.setOnClickListener(clickListener);
-            return new CategoryDetailActivity.FakePageVH(itemView);
+            return new CheckoutActivity.FakePageVH(itemView);
         }
 
         @Override
-        public void onBindViewHolder(CategoryDetailActivity.FakePageVH fakePageVH, int i) {
+        public void onBindViewHolder(CheckoutActivity.FakePageVH fakePageVH, int i) {
             // do nothing
         }
 
@@ -148,4 +141,16 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return  true;
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
+
 }
+

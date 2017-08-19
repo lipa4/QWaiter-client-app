@@ -126,8 +126,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Basket is empty!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(getBaseContext(), CheckoutActivity.class);
+                startActivity(intent);
             }
         });
 

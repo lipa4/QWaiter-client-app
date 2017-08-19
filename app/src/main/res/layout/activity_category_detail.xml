@@ -18,7 +18,7 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/material_appbar"
+        android:id="@+id/material.appbar"
         android:theme="@style/AppTheme.AppBarOverlay">
 
 
@@ -31,7 +31,7 @@
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginStart="48dp"
             app:expandedTitleMarginEnd="64dp"
-            app:title="@string/app_name"
+            app:title="Category"
             >
 
             <ImageView

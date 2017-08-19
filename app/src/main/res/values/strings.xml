@@ -37,11 +37,12 @@
 	</string>
     <string name="title_activity_category_detail">CategoryDetailActivity</string>
     <string name="title_activity_product_detail">ProductDetailActivity</string>
-	<string name="number_picker_formatter">%2d</string>
-	<!-- Font -->
-	<string name="roboto_regular">sans-serif</string>
-	<string name="roboto_light">sans-serif-light</string>
-	<string name="roboto_condensed">sans-serif-condensed</string>
-	<string name="roboto_thin">sans-serif-thin</string>
-	<string name="roboto_medium">sans-serif-medium</string>
+    <string name="number_picker_formatter">%2d</string>
+    <!-- Font -->
+    <string name="roboto_regular">sans-serif</string>
+    <string name="roboto_light">sans-serif-light</string>
+    <string name="roboto_condensed">sans-serif-condensed</string>
+    <string name="roboto_thin">sans-serif-thin</string>
+    <string name="roboto_medium">sans-serif-medium</string>
+    <string name="title_activity_checkout">CheckoutActivity</string>
 </resources>
