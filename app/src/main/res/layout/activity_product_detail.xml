@@ -16,7 +16,9 @@
     android:id="@+id/annonce.main.coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:ignore="RtlHardcoded"
+    android:background="@android:color/white"
     >
 
     <android.support.design.widget.AppBarLayout
@@ -34,6 +36,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:expandedTitleTextAppearance="@style/CollapsingTextAppearance.Inverse"
             app:contentScrim="?colorPrimary"
+
             >
 
             <ImageView
@@ -169,6 +172,7 @@
         android:layout_marginRight="32dp"
         android:elevation="8dp"
         app:fabSize="normal"
+        app:backgroundTint="@color/colorAccent"
         android:src="@drawable/ic_add_shopping_cart_black_24dp"
         app:layout_anchor="@id/flexible.example.cardview"
         app:layout_anchorGravity="top|right|end"

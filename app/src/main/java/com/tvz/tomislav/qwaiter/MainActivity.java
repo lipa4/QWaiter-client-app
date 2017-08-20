@@ -1,7 +1,10 @@
 package com.tvz.tomislav.qwaiter;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
@@ -12,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -37,6 +42,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.InputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
@@ -63,6 +69,7 @@ public class MainActivity extends AppCompatActivity
     private ImageView mProfileImage;
     private int mMaxScrollSize;
     private FirebaseUser mFirebaseUser;
+    private NavigationView mNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +106,7 @@ public class MainActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 mFirebaseUser = firebaseAuth.getCurrentUser();
                 if (mFirebaseUser != null) {
-                    // User is signed in
+
                     onSignedInInitialize(mFirebaseUser.getDisplayName());
                 } else {
                     // User is signed out
@@ -117,6 +124,7 @@ public class MainActivity extends AppCompatActivity
                                     .build(),
                             RC_SIGN_IN);
                 }
+
             }
         };
 
@@ -128,6 +136,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(getBaseContext(), CheckoutActivity.class);
                 startActivity(intent);
+
             }
         });
 
@@ -138,8 +147,12 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
+
+
+
+
 
         //Status bar -> transparent
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -172,6 +185,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -188,8 +202,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void setProfileDataToNav(){
+        TextView userName = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
+        TextView mail = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_user_mail);
+        userName.setText(mFirebaseAuth.getCurrentUser().getDisplayName());
+        mail.setText(mFirebaseAuth.getCurrentUser().getEmail());
+
+
+    }
+
     private void onSignedInInitialize(String username) {
         mUsername = username;
+        ImageView profilePhoto =(ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.profile_photo);
+        new DownloadImageTask(profilePhoto).execute(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString());
 //        attachDatabaseReadListener();
 
     }
@@ -203,6 +228,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+
     }
 
     @Override
@@ -253,17 +279,17 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_profile) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_favorites) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_payment) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_help) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_logout) {
             AuthUI.getInstance().signOut(this);
         }
 
@@ -298,4 +324,34 @@ public class MainActivity extends AppCompatActivity
             return "Tab " + String.valueOf(position);
         }
     }
+
+    public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            if(bmImage!=null){
+                bmImage.setImageBitmap(result);
+                setProfileDataToNav();
+            }
+
+        }
+    }
+
 }

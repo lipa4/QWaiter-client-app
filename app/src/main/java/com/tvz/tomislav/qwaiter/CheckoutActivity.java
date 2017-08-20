@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -19,17 +18,22 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 
-public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener{
+public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener, AppBarLayout.OnOffsetChangedListener{
 
 
     private DrawerLayout mDrawerLayout;
     private int mMaxScrollSize;
     private RecyclerView mRootView;
     private FakePageAdapter mAdapter;
-    public static View.OnClickListener clickListener;
+    private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
+    private boolean mIsAvatarShown = true;
+    public static View.OnClickListener sClickListener;
+    private ImageView mAvatarImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,11 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
                 onBackPressed();
             }
         });
+        toolbar.setTitle("CHECKOUT");
+       // mAvatarImage =(ImageView)findViewById(R.id.checkout_avatar) ;
+        //appbarLayout.addOnOffsetChangedListener(this);
+        //mMaxScrollSize = appbarLayout.getTotalScrollRange();
+
         //Setting back button on the toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -55,7 +64,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         mRootView.setItemAnimator(new DefaultItemAnimator());
         mRootView.setAdapter(mAdapter);
 
-        clickListener = new View.OnClickListener() {
+        sClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getBaseContext(), ProductDetailActivity.class);
@@ -68,7 +77,9 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Toast.makeText(getBaseContext(),"Your order was paid and ordered!",Toast.LENGTH_LONG).show();
+                 startActivity(new Intent(getBaseContext(),MainActivity.class));
+                 finish();
             }
         });
 
@@ -87,17 +98,17 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_profile) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_favorites) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_payment) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_help) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_logout) {
             AuthUI.getInstance().signOut(this);
         }
 
@@ -106,6 +117,30 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         return true;
     }
 
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (mMaxScrollSize == 0)
+            mMaxScrollSize = appBarLayout.getTotalScrollRange();
+
+        int percentage = (Math.abs(i)) * 100 / mMaxScrollSize;
+
+        if (percentage >= PERCENTAGE_TO_ANIMATE_AVATAR && mIsAvatarShown) {
+            mIsAvatarShown = false;
+
+            mAvatarImage.animate()
+                    .scaleY(0).scaleX(0)
+                    .setDuration(200)
+                    .start();
+        }
+
+        if (percentage <= PERCENTAGE_TO_ANIMATE_AVATAR && !mIsAvatarShown) {
+            mIsAvatarShown = true;
+
+            mAvatarImage.animate()
+                    .scaleY(1).scaleX(1)
+                    .start();
+        }
+    }
 
     private static class FakePageAdapter extends RecyclerView.Adapter<CheckoutActivity.FakePageVH> {
         private final int numItems;
@@ -120,7 +155,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         public CheckoutActivity.FakePageVH onCreateViewHolder(ViewGroup viewGroup, int i) {
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
-            itemView.setOnClickListener(clickListener);
+            itemView.setOnClickListener(sClickListener);
             return new CheckoutActivity.FakePageVH(itemView);
         }
 
