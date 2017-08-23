@@ -318,7 +318,7 @@ public final class BarcodeCaptureActivity extends AppCompatActivity implements Q
             barcode = graphic.getBarcode();
             if (barcode != null) {
                 Intent data = new Intent(this, MainActivity.class);
-                data.putExtra(BarcodeObject, barcode);
+                data.putExtra("readValue", barcode.displayValue);
                 startActivity(data);
                 finish();
             }

@@ -65,19 +65,19 @@
                 >
                 ​
                 <TextView
+                    android:id="@+id/cafe.name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                    android:text="Porta"
                     />
                 ​
                 <TextView
+                    android:id="@+id/cafe.category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="4dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
-                    android:text="Caffe bar"
                     android:textColor="@android:color/white"
                     />
                 ​
@@ -127,6 +127,7 @@
 
             />
     </android.support.design.widget.CoordinatorLayout>
+
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"

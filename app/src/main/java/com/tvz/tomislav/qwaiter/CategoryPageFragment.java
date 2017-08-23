@@ -38,7 +38,8 @@ public class CategoryPageFragment extends Fragment  {
      * @return A new instance of fragment CategoryPageFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CategoryPageFragment newInstance() {
+    public static CategoryPageFragment newInstance(int position) {
+
         return new CategoryPageFragment();
     }
 

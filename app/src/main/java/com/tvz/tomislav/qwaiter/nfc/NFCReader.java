@@ -123,9 +123,8 @@ public class NFCReader extends Activity {
     }
 
     /**
-     * Background task for reading the data. Do not block the UI thread while reading.
+     * Background task for reading the data.
      *
-     * @author Ralf Wondratschek
      *
      */
     private class NdefReaderTask extends AsyncTask<Tag, Void, String> {
@@ -186,7 +185,7 @@ public class NFCReader extends Activity {
         protected void onPostExecute(String result) {
             if (result != null) {
                 Intent data = new Intent(getBaseContext(),MainActivity.class);
-                data.putExtra("nfcText",result);
+                data.putExtra("readValue",result);
                 startActivity(data);
                 finish();
             }

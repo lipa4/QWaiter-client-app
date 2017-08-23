@@ -1,15 +1,11 @@
 package com.tvz.tomislav.qwaiter;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,24 +21,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+import com.tvz.tomislav.qwaiter.firebase.models.Object;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
@@ -51,7 +48,7 @@ public class MainActivity extends AppCompatActivity
     public static final int RC_SIGN_IN = 1;
     public static final int RC_SCAN = 2;
     public static final String ANONYMOUS = "anonymous";
-    public static int TAB_COUNT = 2;
+    public static int sTAB_COUNT = 2;
 
     private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
     private boolean mIsAvatarShown = true;
@@ -65,17 +62,36 @@ public class MainActivity extends AppCompatActivity
     private StorageReference mChatPhotosStorageReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private String mUsername=null;
+    public static String sObjectID=null;
     private DrawerLayout mDrawerLayout;
     private ImageView mProfileImage;
     private int mMaxScrollSize;
     private FirebaseUser mFirebaseUser;
     private NavigationView mNavigationView;
+    private Object mObject;
+    private DataSnapshot mDataSnapshot;
+    private TextView mCafeName;
+    private TextView mCafeCategory;
+    private ImageView mCafeAvatar;
+    private ImageView mCafeBackground;
+    private static String sObjectPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String readValue = getIntent().getExtras().getString("readValue");
+        if (readValue.substring(0, 3).equals("res")) {
+            sTAB_COUNT = 2;
+            sObjectPath = "restaurants";
+        } else {
+            sTAB_COUNT = 1;
+            sObjectPath = "bars";
+        }
+        Log.d("readValue:", readValue);
+        sObjectID = readValue.substring(4);
+        Log.d("sObjectID: ",sObjectID);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.materialup_tabs);
         ViewPager viewPager  = (ViewPager) findViewById(R.id.materialup_viewpager);
@@ -93,11 +109,8 @@ public class MainActivity extends AppCompatActivity
         appbarLayout.addOnOffsetChangedListener(this);
         mMaxScrollSize = appbarLayout.getTotalScrollRange();
 
-        //Tabs  DOVRŠI !!!
-        //TAB_COUNT = 1 ako je kafić ili 2 ako restoran
         viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
-
 
         //Firebase authentication
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -149,13 +162,53 @@ public class MainActivity extends AppCompatActivity
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
+        mCafeName = (TextView) findViewById(R.id.cafe_name);
+        mCafeCategory=(TextView)findViewById(R.id.cafe_category);
+        mCafeAvatar = (ImageView) findViewById(R.id.materialup_profile_image);
+        mCafeBackground = (ImageView) findViewById(R.id.materialup_profile_backdrop);
+        setImagesAndUserProfile();
 
+        ImageView profilePhoto =(ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.profile_photo);
+
+        //new DownloadImageTask(profilePhoto,cafeAvatar,cafeBackground).execute(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString(),imageURLs[0],imageURLs[1]);
+        Picasso.with(getBaseContext()).load(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
+
+        setProfileDataToNav();
 
 
 
 
         //Status bar -> transparent
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
+
+
+
+    private void setImagesAndUserProfile() {
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(sObjectPath).child(sObjectID).child("meta-data");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mObject =dataSnapshot.getValue(Object.class);
+                Log.d("TAG1","DATA: "+ mObject.getName());
+                mCafeName.setText(mObject.getName());
+                mCafeCategory.setText(mObject.getObjectCategory());
+                Picasso.with(getBaseContext()).load(mObject.getObjectAvatarImageURL()).fit().into(mCafeAvatar);
+                Picasso.with(getBaseContext()).load(mObject.getObjectBackgroundImageURL()).fit().into(mCafeBackground);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
     }
 
     //Hiding and showing avatar while collapsing toolbar
@@ -184,7 +237,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void setProfileDataToNav(){
 
+        TextView userName = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
+        TextView mail = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_user_mail);
+        userName.setText(mFirebaseAuth.getCurrentUser().getDisplayName());
+        mail.setText(mFirebaseAuth.getCurrentUser().getEmail());
+
+
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -202,19 +263,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void setProfileDataToNav(){
-        TextView userName = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
-        TextView mail = (TextView)mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_user_mail);
-        userName.setText(mFirebaseAuth.getCurrentUser().getDisplayName());
-        mail.setText(mFirebaseAuth.getCurrentUser().getEmail());
 
-
-    }
 
     private void onSignedInInitialize(String username) {
         mUsername = username;
-        ImageView profilePhoto =(ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.profile_photo);
-        new DownloadImageTask(profilePhoto).execute(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString());
 //        attachDatabaseReadListener();
 
     }
@@ -228,7 +280,6 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-
     }
 
     @Override
@@ -311,47 +362,25 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public int getCount() {
-            return TAB_COUNT;
+            return sTAB_COUNT;
         }
 
         @Override
         public Fragment getItem(int i) {
-            return CategoryPageFragment.newInstance();
+            return CategoryPageFragment.newInstance(i);
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Tab " + String.valueOf(position);
+            String tabTitle;
+            if(position==0)
+                tabTitle="DRINKS";
+            else
+                tabTitle="FOOD";
+            return tabTitle;
         }
     }
 
-    public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
 
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            if(bmImage!=null){
-                bmImage.setImageBitmap(result);
-                setProfileDataToNav();
-            }
-
-        }
-    }
 
 }
