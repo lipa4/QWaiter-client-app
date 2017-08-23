@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -40,7 +41,9 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.tvz.tomislav.qwaiter.firebase.models.Object;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AppBarLayout.OnOffsetChangedListener,CategoryPageFragment.OnFragmentInteractionListener {
@@ -48,7 +51,9 @@ public class MainActivity extends AppCompatActivity
     public static final int RC_SIGN_IN = 1;
     public static final int RC_SCAN = 2;
     public static final String ANONYMOUS = "anonymous";
-    public static int sTAB_COUNT = 2;
+    public static int sTAB_COUNT;
+    public static List<Category> sCategoriesFood;
+    public static List<Category> sCategoriesDrinks;
 
     private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
     private boolean mIsAvatarShown = true;
@@ -74,24 +79,26 @@ public class MainActivity extends AppCompatActivity
     private TextView mCafeCategory;
     private ImageView mCafeAvatar;
     private ImageView mCafeBackground;
-    private static String sObjectPath;
+    private static String sObjectPath=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String readValue = getIntent().getExtras().getString("readValue");
-        if (readValue.substring(0, 3).equals("res")) {
-            sTAB_COUNT = 2;
-            sObjectPath = "restaurants";
-        } else {
-            sTAB_COUNT = 1;
-            sObjectPath = "bars";
+        if(sObjectPath==null){
+            String readValue = getIntent().getExtras().getString("readValue");
+            if (readValue.substring(0, 3).equals("res")) {
+                sTAB_COUNT = 2;
+                sObjectPath = "restaurants";
+            } else {
+                sTAB_COUNT = 1;
+                sObjectPath = "bars";
+            }
+            Log.d("readValue:", readValue);
+            sObjectID = readValue.substring(4);
+            Log.d("sObjectID: ",sObjectID);
         }
-        Log.d("readValue:", readValue);
-        sObjectID = readValue.substring(4);
-        Log.d("sObjectID: ",sObjectID);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.materialup_tabs);
         ViewPager viewPager  = (ViewPager) findViewById(R.id.materialup_viewpager);
@@ -108,6 +115,8 @@ public class MainActivity extends AppCompatActivity
         //Listener for collapsing toolbar layout
         appbarLayout.addOnOffsetChangedListener(this);
         mMaxScrollSize = appbarLayout.getTotalScrollRange();
+        sCategoriesDrinks=new ArrayList<>();
+        sCategoriesFood=new ArrayList<>();
 
         viewPager.setAdapter(new TabsAdapter(getSupportFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
@@ -178,9 +187,12 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
+
         //Status bar -> transparent
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
     }
+
 
 
 
@@ -381,6 +393,70 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public static void getDrinkCategories(RecyclerView recyclerView){
 
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("menus").child(sObjectID).child("categories").child("drinkCategory");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot data:dataSnapshot.getChildren()){
+                    Category category = new Category();
+                    category.setName(data.getKey());
+                    sCategoriesDrinks.add(category);
+                    getCategoryImage(data.getKey(),"drinks", sCategoriesDrinks.size()-1,recyclerView);
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+    }
+
+    public static void getFoodCategories(RecyclerView recyclerView){
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("menus").child(sObjectID).child("categories").child("foodCategory");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot data:dataSnapshot.getChildren()){
+                    Category category = new Category();
+                    category.setName(data.getKey());
+                    sCategoriesFood.add(category);
+                    getCategoryImage(data.getKey(),"food", sCategoriesFood.size()-1,recyclerView);
+
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+    }
+
+    public static void getCategoryImage(String categoryName,String drinkOrFood, int position,RecyclerView recyclerView){
+
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(drinkOrFood).child("Category").child(categoryName).child("ImageURL");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (drinkOrFood.equals("drinks"))
+                    sCategoriesDrinks.get(position).setImageURL(dataSnapshot.getValue(String.class));
+                else
+                    sCategoriesFood.get(position).setImageURL(dataSnapshot.getValue(String.class));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+    }
 
 }

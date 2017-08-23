@@ -97,9 +97,8 @@ public class ScanActivity extends AppCompatActivity implements NavigationView.On
                 //user is signed in
                 else{
                     ImageView profilePhoto =(ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.profile_photo);
-
-                    Picasso.with(getBaseContext()).load(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
-
+                    if (mFirebaseAuth.getCurrentUser().getPhotoUrl()!=null)
+                        Picasso.with(getBaseContext()).load(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
                     setProfileDataToNav();
                 }
 

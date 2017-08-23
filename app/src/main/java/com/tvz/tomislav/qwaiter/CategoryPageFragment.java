@@ -10,6 +10,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+import static com.tvz.tomislav.qwaiter.MainActivity.getDrinkCategories;
+import static com.tvz.tomislav.qwaiter.MainActivity.getFoodCategories;
+import static com.tvz.tomislav.qwaiter.MainActivity.sCategoriesDrinks;
+import static com.tvz.tomislav.qwaiter.MainActivity.sCategoriesFood;
 
 
 /**
@@ -22,14 +33,18 @@ import android.view.ViewGroup;
  */
 public class CategoryPageFragment extends Fragment  {
 
-    private RecyclerView mRootView;
-
+    public RecyclerView mRootView;
     private OnFragmentInteractionListener mListener;
     public static View.OnClickListener clickListener;
+    private int mPosition;
+
 
     public CategoryPageFragment() {
         // Required empty public constructor
+
     }
+
+
 
     /**
      * Use this factory method to create a new instance of
@@ -39,8 +54,11 @@ public class CategoryPageFragment extends Fragment  {
      */
     // TODO: Rename and change types and number of parameters
     public static CategoryPageFragment newInstance(int position) {
-
-        return new CategoryPageFragment();
+        CategoryPageFragment fragment = new CategoryPageFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("position",position);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
@@ -62,7 +80,16 @@ public class CategoryPageFragment extends Fragment  {
         }
 
         private void initRecyclerView() {
-            mRootView.setAdapter(new FakePageAdapter(20));
+            int position =this.getArguments().getInt("position");
+
+            if (position==0) {
+                getDrinkCategories(mRootView);
+                mRootView.setAdapter(new CatergoryAdapter(sCategoriesDrinks));
+            }
+            else {
+                getFoodCategories(mRootView);
+                mRootView.setAdapter(new CatergoryAdapter(sCategoriesFood));
+            }
         }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -111,38 +138,45 @@ public class CategoryPageFragment extends Fragment  {
         void onFragmentInteraction(Uri uri);
     }
 
-    private static class FakePageAdapter extends RecyclerView.Adapter<FakePageVH> {
-        private final int numItems;
+    public static class CatergoryAdapter extends RecyclerView.Adapter<CatergoryViewHolder> {
+        private List<Category> categories;
+        private Context mContext;
 
-
-        FakePageAdapter(int numItems) {
-            this.numItems = numItems;
+        CatergoryAdapter(List<Category> categories) {
+            this.categories=categories;
 
         }
 
         @Override
-        public FakePageVH onCreateViewHolder(ViewGroup viewGroup, int i) {
+        public CatergoryViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
-
+            mContext=viewGroup.getContext();
             itemView.setOnClickListener(clickListener);
-            return new FakePageVH(itemView);
+            return new CatergoryViewHolder(itemView);
         }
 
         @Override
-        public void onBindViewHolder(FakePageVH fakePageVH, int i) {
-            // do nothing
+        public void onBindViewHolder(CatergoryViewHolder catergoryViewHolder, int i) {
+            Category category = categories.get(i);
+            catergoryViewHolder.categoryName.setText(category.getName());
+            Picasso.with(mContext).load(category.getImageURL()).into(catergoryViewHolder.categoryImage);
         }
 
         @Override
         public int getItemCount() {
-            return numItems;
+            return categories.size();
         }
     }
 
-    private static class FakePageVH extends RecyclerView.ViewHolder {
-        FakePageVH(View itemView) {
+    public static class CatergoryViewHolder extends RecyclerView.ViewHolder {
+
+        TextView categoryName;
+        ImageView categoryImage;
+        CatergoryViewHolder(View itemView) {
             super(itemView);
+            categoryName=(TextView) itemView.findViewById(R.id.list_item_name);
+            categoryImage=(ImageView) itemView.findViewById(R.id.list_item_image);
         }
     }
 }
