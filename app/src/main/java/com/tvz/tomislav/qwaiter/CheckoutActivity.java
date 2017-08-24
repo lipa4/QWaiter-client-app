@@ -1,12 +1,12 @@
 package com.tvz.tomislav.qwaiter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -14,26 +14,34 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.squareup.picasso.Picasso;
 
-public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener, AppBarLayout.OnOffsetChangedListener{
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener{
 
 
     private DrawerLayout mDrawerLayout;
-    private int mMaxScrollSize;
     private RecyclerView mRootView;
-    private FakePageAdapter mAdapter;
-    private static final int PERCENTAGE_TO_ANIMATE_AVATAR = 20;
-    private boolean mIsAvatarShown = true;
+    private CheckoutAdapter mAdapter;
     public static View.OnClickListener sClickListener;
-    private ImageView mAvatarImage;
+    public static List<FoodDrinkModel> sBasket = new ArrayList<>();
+    private static TextView sSubtotal;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,22 +55,39 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
             }
         });
         toolbar.setTitle("CHECKOUT");
-       // mAvatarImage =(ImageView)findViewById(R.id.checkout_avatar) ;
         //appbarLayout.addOnOffsetChangedListener(this);
         //mMaxScrollSize = appbarLayout.getTotalScrollRange();
-
         //Setting back button on the toolbar
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        sSubtotal = (TextView)findViewById(R.id.checkout_subtotal);
+        refreshSubTotal();
         mRootView = (RecyclerView) findViewById(R.id.checkout_recycler_view);
 
-        mAdapter = new CheckoutActivity.FakePageAdapter(20);
+        mAdapter = new CheckoutAdapter();
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRootView.setLayoutManager(mLayoutManager);
         mRootView.setItemAnimator(new DefaultItemAnimator());
         mRootView.setAdapter(mAdapter);
+        mRootView.addOnItemTouchListener(new RecyclerTouchListener(this, mRootView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                FoodDrinkModel item = sBasket.get(position);
+                Intent intent = new Intent(getApplicationContext(),ProductDetailActivity.class);
+                intent.putExtra("Quantity",item.getQuantity());
+                intent.putExtra("Name",item.getName());
+                intent.putExtra("ImageURL", item.getImageURL());
+                intent.putExtra("Category", item.getCategory());
+                intent.putExtra("Price",item.getPrice());
+                startActivity(intent);
+            }
+        }) );
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback(mAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(mRootView);
 
         sClickListener = new View.OnClickListener() {
             @Override
@@ -91,6 +116,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -117,64 +143,77 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         return true;
     }
 
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-        if (mMaxScrollSize == 0)
-            mMaxScrollSize = appBarLayout.getTotalScrollRange();
-
-        int percentage = (Math.abs(i)) * 100 / mMaxScrollSize;
-
-        if (percentage >= PERCENTAGE_TO_ANIMATE_AVATAR && mIsAvatarShown) {
-            mIsAvatarShown = false;
-
-            mAvatarImage.animate()
-                    .scaleY(0).scaleX(0)
-                    .setDuration(200)
-                    .start();
+    private static void refreshSubTotal(){
+        int subTotal=0;
+        for (FoodDrinkModel item: sBasket){
+            subTotal+=(item.getPrice()*item.getQuantity());
         }
-
-        if (percentage <= PERCENTAGE_TO_ANIMATE_AVATAR && !mIsAvatarShown) {
-            mIsAvatarShown = true;
-
-            mAvatarImage.animate()
-                    .scaleY(1).scaleX(1)
-                    .start();
-        }
+        String sTotal = Integer.toString(subTotal);
+        sSubtotal.setText(sTotal+" kn");
     }
 
-    private static class FakePageAdapter extends RecyclerView.Adapter<CheckoutActivity.FakePageVH> {
-        private final int numItems;
 
 
-        FakePageAdapter(int numItems) {
-            this.numItems = numItems;
+    private static class CheckoutAdapter extends RecyclerView.Adapter<CheckoutViewHolder> implements ItemTouchHelperAdapter {
 
+        Context mContext;
+        CheckoutAdapter() {
         }
 
         @Override
-        public CheckoutActivity.FakePageVH onCreateViewHolder(ViewGroup viewGroup, int i) {
+        public CheckoutViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+            mContext=viewGroup.getContext();
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
-            itemView.setOnClickListener(sClickListener);
-            return new CheckoutActivity.FakePageVH(itemView);
+            return new CheckoutViewHolder(itemView);
+
         }
 
         @Override
-        public void onBindViewHolder(CheckoutActivity.FakePageVH fakePageVH, int i) {
-            // do nothing
+        public void onBindViewHolder(CheckoutViewHolder checkoutViewHolder, int i) {
+            FoodDrinkModel item =sBasket.get(i);
+            checkoutViewHolder.itemName.setText(item.getName());
+            Picasso.with(mContext).load(item.getImageURL()).into(checkoutViewHolder.itemImage);
         }
 
         @Override
         public int getItemCount() {
-            return numItems;
+            return sBasket.size();
+        }
+
+        @Override
+        public void onItemDismiss(int position) {
+           sBasket.remove(position);
+           refreshSubTotal();
+            notifyItemRemoved(position);
+        }
+        @Override
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            if (fromPosition < toPosition) {
+                for (int i = fromPosition; i < toPosition; i++) {
+                    Collections.swap(sBasket, i, i + 1);
+                }
+            } else {
+                for (int i = fromPosition; i > toPosition; i--) {
+                    Collections.swap(sBasket, i, i - 1);
+                }
+            }
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
         }
     }
 
-    private static class FakePageVH extends RecyclerView.ViewHolder {
-        FakePageVH(View itemView) {
+    private static class CheckoutViewHolder extends RecyclerView.ViewHolder {
+        TextView itemName;
+        ImageView itemImage;
+        CheckoutViewHolder(View itemView) {
             super(itemView);
+            itemName=(TextView) itemView.findViewById(R.id.list_item_name);
+            itemImage=(ImageView) itemView.findViewById(R.id.list_item_image);
         }
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -186,6 +225,24 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         return super.onOptionsItemSelected(item);
 
     }
+
+    public interface ItemTouchHelperAdapter {
+
+        boolean onItemMove(int fromPosition, int toPosition);
+        void onItemDismiss(int position);
+    }
+
+    public static int containsElement(String name){
+        int position=-1,i=0;
+        for (FoodDrinkModel item:sBasket){
+            if (name.equals(item.getName())){
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
 
 }
 

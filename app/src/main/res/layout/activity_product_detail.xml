@@ -40,6 +40,7 @@
             >
 
             <ImageView
+                android:id="@+id/product.detail.image"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/cafe_background"
@@ -98,10 +99,10 @@
                         android:weightSum="3"
                         android:layout_height="match_parent">
                         <TextView
+                            android:id="@+id/product.detail.category"
                             android:layout_weight="1"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:text="Hot drink" />
+                            android:layout_height="wrap_content" />
 
                         <TextView
                             android:layout_weight="1"
@@ -110,13 +111,12 @@
                             android:textAlignment="center"
                             android:text="Price" />
                     </LinearLayout>
-
-                    <TextView
+                    <TextSwitcher
+                        android:id="@+id/product.detail.price"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAlignment="center"
-                        android:text="10 kn"
-                        android:textSize="30dp"/>
+                        />
+
                     <TextView
                         android:id="@+id/textView2"
                         android:layout_width="match_parent"

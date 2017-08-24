@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -35,7 +37,6 @@ public class CategoryPageFragment extends Fragment  {
 
     public RecyclerView mRootView;
     private OnFragmentInteractionListener mListener;
-    public static View.OnClickListener clickListener;
     private int mPosition;
 
 
@@ -52,7 +53,6 @@ public class CategoryPageFragment extends Fragment  {
      *
      * @return A new instance of fragment CategoryPageFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static CategoryPageFragment newInstance(int position) {
         CategoryPageFragment fragment = new CategoryPageFragment();
         Bundle bundle = new Bundle();
@@ -64,13 +64,7 @@ public class CategoryPageFragment extends Fragment  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        clickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), CategoryDetailActivity.class);
-                startActivity(intent);
-            }
-        };
+
     }
 
         @Override
@@ -85,11 +79,30 @@ public class CategoryPageFragment extends Fragment  {
             if (position==0) {
                 getDrinkCategories(mRootView);
                 mRootView.setAdapter(new CatergoryAdapter(sCategoriesDrinks));
+                mRootView.addOnItemTouchListener(new RecyclerTouchListener(this, mRootView, new ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        Intent intent = new Intent(getContext(),CategoryDetailActivity.class);
+                        intent.putExtra("Position",position);
+                        intent.putExtra("Category","drink");
+                        startActivity(intent);
+                    }
+                }) );
             }
             else {
                 getFoodCategories(mRootView);
                 mRootView.setAdapter(new CatergoryAdapter(sCategoriesFood));
+                mRootView.addOnItemTouchListener(new RecyclerTouchListener(this, mRootView, new ClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        Intent intent = new Intent(getContext(),CategoryDetailActivity.class);
+                        intent.putExtra("Position",position);
+                        intent.putExtra("Category","food");
+                        startActivity(intent);
+                    }
+                }) );
             }
+
         }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,12 +110,7 @@ public class CategoryPageFragment extends Fragment  {
             return mRootView;
         }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -113,6 +121,10 @@ public class CategoryPageFragment extends Fragment  {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    public interface ClickListener{
+         void onClick(View view,int position);
     }
 
     @Override
@@ -152,7 +164,6 @@ public class CategoryPageFragment extends Fragment  {
             View itemView = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.list_item_card, viewGroup, false);
             mContext=viewGroup.getContext();
-            itemView.setOnClickListener(clickListener);
             return new CatergoryViewHolder(itemView);
         }
 
@@ -177,6 +188,44 @@ public class CategoryPageFragment extends Fragment  {
             super(itemView);
             categoryName=(TextView) itemView.findViewById(R.id.list_item_name);
             categoryImage=(ImageView) itemView.findViewById(R.id.list_item_image);
+        }
+    }
+
+     class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
+
+        private ClickListener clicklistener;
+        private GestureDetector gestureDetector;
+
+        public RecyclerTouchListener(CategoryPageFragment context, final RecyclerView recycleView, final ClickListener clicklistener){
+
+            this.clicklistener=clicklistener;
+            gestureDetector=new GestureDetector(getContext(),new GestureDetector.SimpleOnGestureListener(){
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            View child=rv.findChildViewUnder(e.getX(),e.getY());
+            if(child!=null && clicklistener!=null && gestureDetector.onTouchEvent(e)){
+                clicklistener.onClick(child,rv.getChildAdapterPosition(child));
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
         }
     }
 }

@@ -8,4 +8,5 @@
 
     <dimen name="text_size">20dp</dimen>
     <dimen name="selected_text_size">25dp</dimen>
+    <dimen name="pricetextsize">15dp</dimen>
 </resources>
