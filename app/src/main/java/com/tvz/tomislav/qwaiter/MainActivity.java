@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity
     private TextView mCafeCategory;
     private ImageView mCafeAvatar;
     private ImageView mCafeBackground;
-    private static String sObjectPath=null;
+    public static String sObjectPath=null;
+    public static int sTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +97,9 @@ public class MainActivity extends AppCompatActivity
                 sObjectPath = "bars";
             }
             Log.d("readValue:", readValue);
-            sObjectID = readValue.substring(4);
+            sObjectID = readValue.substring(6);
             Log.d("sObjectID: ",sObjectID);
+            sTable = Integer.valueOf(readValue.charAt(4));
         }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.materialup_tabs);
@@ -204,7 +206,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mObject =dataSnapshot.getValue(Object.class);
-                Log.d("TAG1","DATA: "+ mObject.getName());
                 mCafeName.setText(mObject.getName());
                 mCafeCategory.setText(mObject.getObjectCategory());
                 Picasso.with(getBaseContext()).load(mObject.getObjectAvatarImageURL()).fit().into(mCafeAvatar);

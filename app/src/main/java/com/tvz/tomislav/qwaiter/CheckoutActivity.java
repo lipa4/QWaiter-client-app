@@ -15,6 +15,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -25,12 +27,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+
+import static com.tvz.tomislav.qwaiter.MainActivity.sObjectID;
+import static com.tvz.tomislav.qwaiter.MainActivity.sObjectPath;
+import static com.tvz.tomislav.qwaiter.MainActivity.sTable;
 
 public class CheckoutActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -41,7 +53,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
     public static View.OnClickListener sClickListener;
     public static List<FoodDrinkModel> sBasket = new ArrayList<>();
     private static TextView sSubtotal;
-
+    public static Order sOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,14 +111,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
 
         //Basket floating action buttton
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.checkout_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getBaseContext(),"Your order was paid and ordered!",Toast.LENGTH_LONG).show();
-                 startActivity(new Intent(getBaseContext(),MainActivity.class));
-                 finish();
-            }
-        });
+
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 //        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -116,6 +121,50 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        sOrder=new Order();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(CheckoutActivity.this)
+                        .autoDismiss(false)
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendOrderToWaiter();
+                                Toast.makeText(getApplicationContext(),"Order was placed succesfuly!",Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        })
+                        .title("Payment method")
+                        .items(R.array.items)
+                        .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                            @Override
+                            public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                sOrder.setPaymentModel(getResources().getStringArray(R.array.items)[which]);
+                                return true;
+                            }
+                        })
+                        .positiveText("PAY")
+                        .cancelable(true)
+                        .icon(getResources().getDrawable(R.drawable.ic_payment_black_24dp,getTheme()))
+                        .show();
+            }
+        });
+    }
+
+    private void sendOrderToWaiter() {
+        //sOrder.setOrderList(sBasket);
+        sOrder.setPlaceCategory("category");
+        sOrder.setPlaceName("name");
+        sOrder.setWaiter("waiter");
+        //sOrder.setUserData(FirebaseAuth.getInstance().getCurrentUser());
+        sOrder.setSubtotal(refreshSubTotal());
+        sOrder.setTable(sTable);
+        sOrder.setOrderDate(Calendar.getInstance().getTime().toString());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(sObjectPath).child(sObjectID).child("orders");
+        databaseReference.push().setValue(sOrder);
 
     }
 
@@ -143,13 +192,14 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
         return true;
     }
 
-    private static void refreshSubTotal(){
+    private static int refreshSubTotal(){
         int subTotal=0;
         for (FoodDrinkModel item: sBasket){
             subTotal+=(item.getPrice()*item.getQuantity());
         }
         String sTotal = Integer.toString(subTotal);
         sSubtotal.setText(sTotal+" kn");
+        return subTotal;
     }
 
 

@@ -10,6 +10,7 @@ public class FoodDrinkModel {
     private String name;
     private Integer price;
     private int quantity;
+    private String category;
 
 
     public int getQuantity() {
@@ -29,7 +30,6 @@ public class FoodDrinkModel {
         this.category = category;
     }
 
-    private String category;
 
     public Integer getPrice() {
         return price;
