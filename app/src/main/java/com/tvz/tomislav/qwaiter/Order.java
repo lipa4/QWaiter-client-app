@@ -7,30 +7,13 @@ import java.util.List;
 public class Order {
 
     private List<FoodDrinkModel> orderList;
-    private FirebaseUser userData;
+    private String userID;
     private String orderDate;
     private int subtotal;
     private String waiter;
     private String paymentModel;
-    private String placeName;
-    private String placeCategory;
     private int table;
 
-    public String getPlaceName() {
-        return placeName;
-    }
-
-    public void setPlaceName(String placeName) {
-        this.placeName = placeName;
-    }
-
-    public String getPlaceCategory() {
-        return placeCategory;
-    }
-
-    public void setPlaceCategory(String placeCategory) {
-        this.placeCategory = placeCategory;
-    }
 
     public int getTable() {
         return table;
@@ -45,12 +28,6 @@ public class Order {
     public Order() {
     }
 
-    public Order(List<FoodDrinkModel> OrderList, FirebaseUser userData, String orderDate, int subtotal) {
-        this.orderList = OrderList;
-        this.userData = userData;
-        this.orderDate = orderDate;
-        this.subtotal = subtotal;
-    }
 
     public String getWaiter() {
         return waiter;
@@ -76,12 +53,12 @@ public class Order {
         this.orderList = orderList;
     }
 
-    public FirebaseUser getUserData() {
-        return userData;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setUserData(FirebaseUser userData) {
-        this.userData = userData;
+    public void setUserID(String userData) {
+        this.userID = userData;
     }
 
     public String getOrderDate() {
@@ -99,4 +76,6 @@ public class Order {
     public void setSubtotal(int subtotal) {
         this.subtotal = subtotal;
     }
+
+
 }

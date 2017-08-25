@@ -155,17 +155,15 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
     }
 
     private void sendOrderToWaiter() {
-        //sOrder.setOrderList(sBasket);
-        sOrder.setPlaceCategory("category");
-        sOrder.setPlaceName("name");
+        sOrder.setOrderList(sBasket);
         sOrder.setWaiter("waiter");
-        //sOrder.setUserData(FirebaseAuth.getInstance().getCurrentUser());
+        sOrder.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         sOrder.setSubtotal(refreshSubTotal());
         sOrder.setTable(sTable);
         sOrder.setOrderDate(Calendar.getInstance().getTime().toString());
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(sObjectPath).child(sObjectID).child("orders");
         databaseReference.push().setValue(sOrder);
-
+        sBasket.clear();
     }
 
     @Override

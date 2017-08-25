@@ -8,7 +8,7 @@ public class FoodDrinkModel {
 
     private String imageURL;
     private String name;
-    private Integer price;
+    private int price;
     private int quantity;
     private String category;
 
@@ -31,11 +31,11 @@ public class FoodDrinkModel {
     }
 
 
-    public Integer getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 

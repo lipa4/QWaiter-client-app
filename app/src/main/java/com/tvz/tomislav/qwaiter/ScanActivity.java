@@ -3,9 +3,7 @@ package com.tvz.tomislav.qwaiter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,13 +25,11 @@ import com.tvz.tomislav.qwaiter.qrcode.BarcodeCaptureActivity;
 
 import java.util.Arrays;
 
-import static com.tvz.tomislav.qwaiter.MainActivity.RC_SIGN_IN;
-
 public class ScanActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int RC_SIGN_IN = 1;
-    private Button mNFCButton;
-    private Button mQRCodeButton;
+    private ImageButton mNFCButton;
+    private ImageButton mQRCodeButton;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -46,8 +43,8 @@ public class ScanActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mNFCButton = (Button) findViewById(R.id.nfc_button);
-        mQRCodeButton = (Button) findViewById(R.id.qr_code_button);
+        mNFCButton = (ImageButton) findViewById(R.id.nfc_button);
+        mQRCodeButton = (ImageButton) findViewById(R.id.qr_code_button);
 
         mNFCButton.setOnClickListener(new View.OnClickListener() {
             @Override

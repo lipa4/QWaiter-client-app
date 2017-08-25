@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("readValue:", readValue);
             sObjectID = readValue.substring(6);
             Log.d("sObjectID: ",sObjectID);
-            sTable = Integer.valueOf(readValue.charAt(4));
+            sTable = Character.getNumericValue(readValue.charAt(4));
         }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.materialup_tabs);
