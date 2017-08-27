@@ -157,7 +157,7 @@ public class CheckoutActivity extends AppCompatActivity  implements NavigationVi
     private void sendOrderToWaiter() {
         sOrder.setOrderList(sBasket);
         sOrder.setWaiter("waiter");
-        sOrder.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        sOrder.setUserID(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         sOrder.setSubtotal(refreshSubTotal());
         sOrder.setTable(sTable);
         sOrder.setOrderDate(Calendar.getInstance().getTime().toString());

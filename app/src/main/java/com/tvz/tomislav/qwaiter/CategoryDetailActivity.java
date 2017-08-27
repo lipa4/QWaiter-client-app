@@ -64,7 +64,6 @@ public class CategoryDetailActivity extends AppCompatActivity implements Navigat
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
 
-
         if(getIntent().getExtras()!=null){
             sListItems=new ArrayList<>();
             int position=getIntent().getExtras().getInt("Position");

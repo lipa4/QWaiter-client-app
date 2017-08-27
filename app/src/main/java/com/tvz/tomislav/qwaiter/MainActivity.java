@@ -182,8 +182,8 @@ public class MainActivity extends AppCompatActivity
         ImageView profilePhoto =(ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.profile_photo);
 
         //new DownloadImageTask(profilePhoto,cafeAvatar,cafeBackground).execute(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString(),imageURLs[0],imageURLs[1]);
-        Picasso.with(getBaseContext()).load(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
-
+        if (mFirebaseAuth.getCurrentUser().getPhotoUrl()!=null)
+            Picasso.with(getBaseContext()).load(mFirebaseAuth.getCurrentUser().getPhotoUrl().toString()).into(profilePhoto);
         setProfileDataToNav();
 
 
@@ -285,6 +285,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void onSignedOutCleanup() {
         mUsername = ANONYMOUS;
+        sObjectPath=null;
        /* mMessageAdapter.clear();
         detachDatabaseReadListener();*/
     }
